@@ -1,0 +1,1 @@
+# Marks the 'schemas' directory as a Python package.

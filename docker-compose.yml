@@ -1,0 +1,39 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend
+    container_name: deception_ai_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - DEBUG=false
+      - PYTHONPATH=/app
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import requests; requests.get('http://localhost:8000/health')"
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: frontend
+    container_name: deception_ai_frontend
+    ports:
+      - "8501:8501"
+    environment:
+      - API_URL=http://backend:8000/api/v1/analyze
+      - PYTHONPATH=/app
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
